@@ -1,0 +1,70 @@
+package mainbk
+
+import (
+	"log"
+	"net/http"
+	"text/template"
+)
+
+func hello(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Hello, This is GO-Server!!"))
+}
+
+// テンプレートクラスの使用
+func hello2(w http.ResponseWriter, r *http.Request) {
+	html := `
+	<html><body>
+	<h1>Hello</h1>
+	<p>This is GO-server!!</p>
+	</body></html>
+	`
+	w.Write([]byte(html))
+}
+
+// テンプレートの使用
+func hello3(w http.ResponseWriter, r *http.Request) {
+	html := `
+	<html><body>
+	<h1>Hello</h1>
+	<p>This is GO-server!!</p>
+	</body></html>
+	`
+	tf, err := template.New("index").Parse(html)
+	err = tf.Execute(w, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+// テンプレートファイルの使用
+func hello4(w http.ResponseWriter, r *http.Request) {
+	tf, err := template.ParseFiles("templates/hello.html")
+	if err != nil {
+		tf, _ = template.New("index").Parse("<html><body><h1>NO TEMPLATE.</h1></body></html>")
+	}
+
+	err = tf.Execute(w, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func main() {
+
+	// http.ListenAndServe("", http.NotFoundHandler())
+	// http.ListenAndServe("", http.FileServer(http.Dir(".")))
+
+	http.HandleFunc("/hello", hello)
+
+	// htmlテキストの表示
+	http.HandleFunc("/hello2", hello2)
+
+	// テンプレートの使用
+	http.HandleFunc("/hello3", hello3)
+
+	// テンプレートファイルの使用
+	http.HandleFunc("/hello4", hello4)
+
+	http.ListenAndServe("", nil)
+
+}
